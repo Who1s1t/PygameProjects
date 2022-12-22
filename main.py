@@ -51,6 +51,7 @@ class Player(pygame.sprite.Sprite):
         if not pygame.sprite.collide_mask(self, mountain):
             self.rect = self.rect.move(0, 1)
 
+
 class Enemy(pygame.sprite.Sprite):
     image = load_image("enemy.png", color_key="black")
 
@@ -67,6 +68,7 @@ class Enemy(pygame.sprite.Sprite):
         if not pygame.sprite.collide_mask(self, mountain):
             self.rect = self.rect.move(0, 1)
 
+
 class Pistol(pygame.sprite.Sprite):
     image = load_image("Pistol.png", color_key="black")
 
@@ -77,10 +79,16 @@ class Pistol(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.rect.x = player.rect.x
         self.rect.y = player.rect.y
+
     def update(self):
         # если ещё в небе
         if not pygame.sprite.collide_mask(self, mountain):
             self.rect = self.rect.move(0, 1)
+
+
+class Bullet(pygame.sprite.Sprite):
+    pass
+
 
 all_sprites = pygame.sprite.Group()
 mountain = Stairs()
