@@ -22,12 +22,12 @@ def load_image(name, color_key=None):
     return image
 
 
-class Mountain(pygame.sprite.Sprite):
+class Stairs(pygame.sprite.Sprite):
     image = load_image("fon..png", color_key=-1)
 
     def __init__(self):
         super().__init__(all_sprites)
-        self.image = Mountain.image
+        self.image = Stairs.image
         self.rect = self.image.get_rect()
         # вычисляем маску для эффективного сравнения
         self.mask = pygame.mask.from_surface(self.image)
@@ -83,7 +83,7 @@ class Pistol(pygame.sprite.Sprite):
             self.rect = self.rect.move(0, 1)
 
 all_sprites = pygame.sprite.Group()
-mountain = Mountain()
+mountain = Stairs()
 player = Player()
 enemy = Enemy()
 clock = pygame.time.Clock()
