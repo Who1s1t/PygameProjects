@@ -2,6 +2,7 @@ import os
 import pygame
 
 pygame.init()
+# 4000, 7000
 size = width, height = 400, 700
 screen = pygame.display.set_mode(size)
 
@@ -45,11 +46,7 @@ class Player(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.rect.x = 40
         self.rect.y = 532
-
-    def update(self):
-        # если ещё в небе
-        if not pygame.sprite.collide_mask(self, mountain):
-            self.rect = self.rect.move(0, 1)
+        self.pistol = Pistol(self.rect.x - 198, self.rect.y+20, 'player')
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -62,32 +59,61 @@ class Enemy(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.rect.x = 270
         self.rect.y = 436
-
-    def update(self):
-        # если ещё в небе
-        if not pygame.sprite.collide_mask(self, mountain):
-            self.rect = self.rect.move(0, 1)
+        self.pistol = Pistol(self.rect.x - 10, self.rect.y + 15)
 
 
 class Pistol(pygame.sprite.Sprite):
-    image = load_image("Pistol.png", color_key="black")
+    image = load_image("Pistol4.png", color_key=None)
 
-    def __init__(self):
+    def __init__(self, x, y, parent='enemy'):
         super().__init__(all_sprites)
+        self.parent = parent
         self.image = Pistol.image
+        if self.parent == "player":
+            self.image = pygame.transform.flip(self.image, True, False)
+        self.image1 = self.image
         self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image)
-        self.rect.x = player.rect.x
-        self.rect.y = player.rect.y
+        self.rect.x = x
+        self.rect.y = y
+        self.gradus = 1
+        self.flag = 0
+
+
+    def shot(self):
+        bullet = Bullet(self.rect.x, self.rect.y)
 
     def update(self):
-        # если ещё в небе
-        if not pygame.sprite.collide_mask(self, mountain):
-            self.rect = self.rect.move(0, 1)
+        if self.parent == "player":
+            self.image = pygame.transform.rotate(self.image1, self.gradus)
+            if self.flag:
+                self.gradus -= 1
+            else:
+                self.gradus += 1
+            oldCenter = self.rect.center
+            rotreact = self.image.get_rect()
+            rotreact.center = oldCenter
+            self.rect = rotreact
+            if self.gradus > 45:
+                self.flag = 1
+            elif self.gradus < 1:
+                self.flag = 0
+            print(self.rect)
 
 
 class Bullet(pygame.sprite.Sprite):
-    pass
+    image = load_image("Pistol.png", color_key=-1)
+
+    def __init__(self, x, y):
+        super().__init__(all_sprites)
+        self.image = Bullet.image
+        self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect.x = x - 10
+        self.rect.y = y + 15
+
+    def update(self):
+        pass
 
 
 all_sprites = pygame.sprite.Group()
@@ -101,7 +127,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
-            pass
+            enemy.pistol.shot()
     screen.fill(pygame.Color("black"))
     all_sprites.draw(screen)
     all_sprites.update()
