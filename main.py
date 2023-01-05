@@ -5,7 +5,7 @@ pygame.init()
 # 4000, 7000
 size = width, height = 400, 700
 screen = pygame.display.set_mode(size)
-
+#1
 
 def load_image(name, color_key=None):
     fullname = os.path.join('data', name)
