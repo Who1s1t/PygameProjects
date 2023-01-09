@@ -187,7 +187,7 @@ while running:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
             player.pistol.flag = -1
-    player.pistol.shot()
+            player.pistol.shot()
     screen.fill(pygame.Color("black"))
     all_sprites.draw(screen)
     all_sprites.update()
