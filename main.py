@@ -1,4 +1,7 @@
 import os
+import sys
+import random
+
 import pygame
 
 pygame.init()
@@ -1815,6 +1818,12 @@ trajectories = {
          (1, 0), (0, -1), (1, 0), (0, -1), (1, 0), (0, -1), (1, -1), (1, -1), (1, -1), (1, -1), (1, -1), (1, -1),
          (1, -1), (1, -1), (1, -1), (1, -1), (1, -1), (1, -1), (1, -1)]
 }
+score = 0
+
+
+def terminate():
+    pygame.quit()
+    sys.exit()
 
 
 def load_image(name, color_key=None):
@@ -1833,30 +1842,93 @@ def load_image(name, color_key=None):
     return image
 
 
+def restart():
+    global stairs, fon, player, enemy, all_sprites, clock, score
+    FPS = 50
+
+    fon1 = pygame.transform.scale(load_image(f'fon{fon.foni}.png'), (400, 700))
+    screen.blit(fon1, (0, 0))
+    font = pygame.font.Font(None, 30)
+    text_coord = 50
+
+    string_rendered = font.render(str(score), 1, pygame.Color('red'))
+    intro_rect = string_rendered.get_rect()
+    text_coord += 200
+    intro_rect.top = text_coord
+    intro_rect.x = 200
+    text_coord += intro_rect.height
+    screen.blit(string_rendered, intro_rect)
+    r = True
+    while r:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            elif event.type == pygame.KEYDOWN or \
+                    event.type == pygame.MOUSEBUTTONDOWN:
+                r = False
+        pygame.display.flip()
+        clock.tick(FPS)
+    print(2)
+    enemy.kill()
+    fon.kill()
+    stairs.kill()
+    fon = Fon(1)
+    stairs = Stairs(random.randint(1, 2))
+    player = Player()
+    enemy = Enemy()
+
+
+def next_level():
+    global stairs, fon, player, enemy, all_sprites, clock, score
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+        player.rect = player.rect.move(4, 0)
+        if pygame.sprite.collide_mask(player, stairs):
+            player.rect = player.rect.move(-4, 0)
+            player.rect = player.rect.move(0, -4)
+        all_sprites.draw(screen)
+        pygame.display.flip()
+        clock.tick(50)
+        if player.rect.x > width:
+            running = False
+    font = 1
+    if fon.foni == 4:
+        font = 1
+    else:
+        font = fon.foni + 1
+    fon.image = load_image(f"fon{font}.png", color_key=None)
+    fon.foni = font
+    stairs.kill()
+    stairs = Stairs(random.randint(1, 2))
+    enemy = Enemy()
+    player.kill()
+    player = Player()
+    all_sprites.draw(screen)
+    pygame.display.flip()
+    score += 1
+
+
 class Fon(pygame.sprite.Sprite):
 
-    def __init__(self, fon):
+    def __init__(self, fon=1):
         super().__init__(all_sprites)
+        self.foni = fon
         self.image = load_image(f"fon{fon}.png", color_key=None)
         self.rect = self.image.get_rect()
-        # вычисляем маску для эффективного сравнения
-        self.mask = pygame.mask.from_surface(self.image)
-        # располагаем горы внизу
         self.rect.bottom = height
 
 
-
-
 class Stairs(pygame.sprite.Sprite):
-    image = load_image("stairs2.png", color_key=-1)
 
-    def __init__(self):
+    def __init__(self, num=1):
         super().__init__(all_sprites)
-        self.image = Stairs.image
+        self.num = num
+        self.image = load_image(f"stairs{num}.png", color_key=-1)
         self.rect = self.image.get_rect()
-        # вычисляем маску для эффективного сравнения
         self.mask = pygame.mask.from_surface(self.image)
-        # располагаем горы внизу
         self.rect.bottom = height
 
 
@@ -1889,7 +1961,6 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.bottom = stairs.rect.top
 
 
-
 class Pistol(pygame.sprite.Sprite):
     image = load_image("Pisto54.png", color_key=-1)
 
@@ -1910,21 +1981,20 @@ class Pistol(pygame.sprite.Sprite):
             bullet = Bullet(self.rect.centerx, self.rect.centery, self.gradus)
 
     def update(self):
-            if self.flag != -1:
-                if self.flag:
-                    self.gradus -= 1
-                else:
-                    self.gradus += 1
-                if self.gradus > 45:
-                    self.flag = 1
-                elif self.gradus < 1:
-                    self.flag = 0
-                self.image = pygame.transform.rotate(self.image1, self.gradus)
-                oldCenter = self.rect.center
-                rotreact = self.image.get_rect()
-                rotreact.center = oldCenter
-                self.rect = rotreact
-                print(self.rect, self.rect.center, self.gradus)
+        if self.flag != -1:
+            if self.flag:
+                self.gradus -= 1
+            else:
+                self.gradus += 1
+            if self.gradus > 45:
+                self.flag = 1
+            elif self.gradus < 1:
+                self.flag = 0
+            self.image = pygame.transform.rotate(self.image1, self.gradus)
+            oldCenter = self.rect.center
+            rotreact = self.image.get_rect()
+            rotreact.center = oldCenter
+            self.rect = rotreact
 
 
 class Bullet(pygame.sprite.Sprite):
@@ -1941,18 +2011,20 @@ class Bullet(pygame.sprite.Sprite):
         self.shag = 0
 
     def update(self):
-        pass
         for i in range(20):
             if pygame.sprite.collide_mask(self, stairs):
                 self.kill()
                 player.kill()
                 player.pistol.kill()
+                restart()
+                break
             elif pygame.sprite.collide_mask(self, enemy):
                 player.pistol.kill()
                 enemy.kill()
                 self.kill()
+                next_level()
+                break
             elif self.shag < len(trajectories[self.gradus]):
-                print(self.gradus)
                 v = trajectories[self.gradus][self.shag]
                 self.rect = self.rect.move(v[0], v[1])
                 self.shag += 1
@@ -1960,19 +2032,20 @@ class Bullet(pygame.sprite.Sprite):
                 player.pistol.kill()
                 player.kill()
                 self.kill()
+                restart()
+                break
 
 
 all_sprites = pygame.sprite.Group()
 fon = Fon(1)
-stairs = Stairs()
+stairs = Stairs(random.randint(1, 2))
 player = Player()
 enemy = Enemy()
 clock = pygame.time.Clock()
-running = True
-while running:
+while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            running = False
+            terminate()
         if event.type == pygame.MOUSEBUTTONDOWN:
             player.pistol.flag = -1
             player.pistol.shot()
@@ -1981,4 +2054,3 @@ while running:
     all_sprites.update()
     pygame.display.flip()
     clock.tick(50)
-pygame.quit()
