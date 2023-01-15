@@ -1868,14 +1868,14 @@ def restart():
                 r = False
         pygame.display.flip()
         clock.tick(FPS)
-    print(2)
     enemy.kill()
     fon.kill()
     stairs.kill()
     fon = Fon(1)
-    stairs = Stairs(random.randint(1, 2))
+    stairs = Stairs(random.randint(1, 4))
     player = Player()
     enemy = Enemy()
+    score = 0
 
 
 def next_level():
@@ -1902,7 +1902,7 @@ def next_level():
     fon.image = load_image(f"fon{font}.png", color_key=None)
     fon.foni = font
     stairs.kill()
-    stairs = Stairs(random.randint(1, 2))
+    stairs = Stairs(random.randint(1, 4))
     enemy = Enemy()
     player.kill()
     player = Player()
@@ -2038,7 +2038,7 @@ class Bullet(pygame.sprite.Sprite):
 
 all_sprites = pygame.sprite.Group()
 fon = Fon(1)
-stairs = Stairs(random.randint(1, 2))
+stairs = Stairs(random.randint(1, 4))
 player = Player()
 enemy = Enemy()
 clock = pygame.time.Clock()
