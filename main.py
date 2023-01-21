@@ -1838,6 +1838,40 @@ def terminate():
     sys.exit()
 
 
+def start_screen():
+    FPS = 50
+    clock = pygame.time.Clock()
+    fon1 = pygame.transform.scale(load_image(f'fon1.png'), (400, 700))
+    screen.blit(fon1, (0, 0))
+    font = pygame.font.Font(None, 30)
+    text_coord = 50
+
+    string_rendered = font.render("Mr.GUN", 1, pygame.Color('red'))
+    intro_rect = string_rendered.get_rect()
+    text_coord += 200
+    intro_rect.top = text_coord
+    intro_rect.x = 160
+    text_coord += intro_rect.height
+    screen.blit(string_rendered, intro_rect)
+    string_rendered = font.render('Для начала игры нажмите ЛКМ', 1, pygame.Color('red'))
+    intro_rect = string_rendered.get_rect()
+    text_coord += 20
+    intro_rect.top = text_coord
+    intro_rect.x = 60
+    text_coord += intro_rect.height
+    screen.blit(string_rendered, intro_rect)
+    r = True
+    while r:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            elif event.type == pygame.KEYDOWN or \
+                    event.type == pygame.MOUSEBUTTONDOWN:
+                r = False
+        pygame.display.flip()
+        clock.tick(FPS)
+
+
 def load_image(name, color_key=None):
     fullname = os.path.join('data', name)
     try:
@@ -2057,6 +2091,7 @@ class Bullet(pygame.sprite.Sprite):
                 break
 
 
+start_screen()
 all_sprites = pygame.sprite.Group()
 fon = Fon(1)
 stairs = Stairs(random.randint(1, 4))
