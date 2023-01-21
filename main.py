@@ -1820,6 +1820,9 @@ trajectories = {
 }
 score = 0
 best_score = 0
+pygame.mixer.music.load('music/fon_music.mp3')
+pygame.mixer.music.play()
+shot_sound = pygame.mixer.Sound('music/shot.mp3')
 
 
 def write_score(best_score):
@@ -2033,6 +2036,7 @@ class Pistol(pygame.sprite.Sprite):
 
     def shot(self):
         if not player.move:
+            shot_sound.play()
             bullet = Bullet(self.rect.centerx, self.rect.centery, self.gradus)
 
     def update(self):
