@@ -1819,6 +1819,18 @@ trajectories = {
          (1, -1), (1, -1), (1, -1), (1, -1), (1, -1), (1, -1), (1, -1)]
 }
 score = 0
+best_score = 0
+
+
+def write_score(best_score):
+    with open('score.txt', 'w') as f:
+        f.write(str(best_score))
+
+
+def read_score():
+    with open('score.txt', 'r') as f:
+        best_scoret = f.readline()
+    return best_scoret
 
 
 def terminate():
@@ -1843,7 +1855,9 @@ def load_image(name, color_key=None):
 
 
 def restart():
-    global stairs, fon, player, enemy, all_sprites, clock, score
+    global stairs, fon, player, enemy, all_sprites, clock, score, best_score
+    if int(read_score()) < score:
+        write_score(score)
     FPS = 50
 
     fon1 = pygame.transform.scale(load_image(f'fon{fon.foni}.png'), (400, 700))
@@ -1856,6 +1870,13 @@ def restart():
     text_coord += 200
     intro_rect.top = text_coord
     intro_rect.x = 200
+    text_coord += intro_rect.height
+    screen.blit(string_rendered, intro_rect)
+    string_rendered = font.render(f'BEST SCORE : {read_score()}', 1, pygame.Color('red'))
+    intro_rect = string_rendered.get_rect()
+    text_coord += 20
+    intro_rect.top = text_coord
+    intro_rect.x = 140
     text_coord += intro_rect.height
     screen.blit(string_rendered, intro_rect)
     r = True
